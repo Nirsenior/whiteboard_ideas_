@@ -21,7 +21,16 @@
 <script>
 'use strict';
 const KEY='idea-lab-board-v1';
+const MIGRATIONS_KEY='idea-lab-board-migrations';
+const SHORTLIST_MIGRATION='micro-saas-shortlist-2026-10-31';
 const lanes=[{id:'problems',name:'בעיות שזיהיתי',dot:'#e2ab4f',bg:'#fff6db',border:'#f3e4b5'},{id:'products',name:'רעיונות למוצרים',dot:'#64ae83',bg:'#e7f5ec',border:'#c9e9d5'},{id:'trends',name:'מגמות והזדמנויות',dot:'#7795ef',bg:'#eaf0ff',border:'#d7e0ff'},{id:'wild',name:'רעיונות פרועים',dot:'#d47eae',bg:'#fff0f7',border:'#f3d6e7'},{id:'connections',name:'חיבורים ותובנות',dot:'#9b85d5',bg:'#f2edff',border:'#e3d8fa'}];
+const shortlist=[
+{id:'micro_lead_followup_auditor',title:'AI Lead Follow-up Auditor',desc:'קהל: עסקים קטנים שמנהלים לידים ב־CRM.\nבעיה: לידים, לקוחות והזדמנויות מכירה נשכחים בלי מעקב בזמן.\nפתרון: ביקורת אוטומטית שמזהה פערי Follow-up, מתעדפת כסף בסיכון ומציעה את הפעולה הבאה.\nסיכון: מערכות CRM כבר מציעות יכולות דומות, ולכן נדרש בידול ברור.',lane:'products',tag:'Micro-SaaS / CRM',star:true,ready:true},
+{id:'micro_restaurant_reputation',title:'Restaurant Reputation Manager',desc:'קהל: מסעדות ובתי קפה.\nבעיה: ביקורות Google שליליות ותלונות חוזרות אינן מטופלות באופן עקבי.\nפתרון: ריכוז ביקורות, זיהוי דפוסים, הצעת תגובות ומדידת שיפור לאורך זמן.\nסיכון: מסעדות רגישות למחיר ויש כבר מערכות רבות לניהול ביקורות.',lane:'products',tag:'Micro-SaaS / Restaurants',star:false,ready:true},
+{id:'micro_ai_search_visibility',title:'AI Search Visibility Tracker',desc:'קהל: עסקים שרוצים להופיע בהמלצות של מנועי AI.\nבעיה: אין להם תמונה ברורה מתי ChatGPT, Gemini ומנועים אחרים ממליצים עליהם לעומת מתחרים.\nפתרון: מעקב עקבי אחר שאילתות, נראות, אזכורים ומגמות מול מתחרים.\nסיכון: שוק תחרותי וקשה לייחס נראות במנועי AI להכנסה.',lane:'products',tag:'Micro-SaaS / AI Search',star:false,ready:true},
+{id:'micro_digital_spend_advisor',title:'Digital Spend Advisor',desc:'קהל: עסקים קטנים שנמצאים בתהליך דיגיטציה.\nבעיה: כפילויות במנויי SaaS, חידושים אוטומטיים וכלים שאינם מנוצלים מגדילים את ההוצאה.\nפתרון: מיפוי ההוצאה הדיגיטלית, זיהוי בזבוז והמלצות לביטול, איחוד או הורדת תוכנית.\nסיכון: קשה לקבל נתונים מלאים בלי חיבור לחשבונות ולמערכות תשלום.',lane:'products',tag:'Micro-SaaS / SMB',star:false,ready:true},
+{id:'micro_supplier_price_guardian',title:'Supplier Price Guardian',desc:'קהל: מסעדות, חנויות ועסקים קטנים עם רכישות חוזרות מספקים.\nבעיה: עליות מחיר חריגות נבלעות בין חשבוניות, יחידות, אריזות, הנחות ומע״מ.\nפתרון: ניתוח חשבוניות והשוואה להיסטוריה, התרעה על עלייה אמיתית והכנת טיעוני מיקוח כדי לחזור למחיר הקודם או להשיג מחיר טוב יותר.\nסיכון: חשבוניות לא אחידות, שינויי כמויות ומחסור בנתוני שוק אמינים.',lane:'products',tag:'Micro-SaaS / Procurement',star:true,ready:true}
+];
 const seed=[
 {id:'a1',title:'הורים לא מאזינים להקלטות מהגן',desc:'הקלטות ארוכות דורשות שעות האזנה. איך מזהים רגעים חריגים בלי להאזין להכול? יש לבדוק חוקיות, פרטיות ואמינות.',lane:'problems',tag:'Consumer / AI',star:false,ready:false},
 {id:'a2',title:'אוטומציות נשברות בלי שמבחינים',desc:'בעסקים קטנים תהליך שנשבר עלול לעצור לידים, דיווחים או גבייה בלי שמישהו שם לב.',lane:'problems',tag:'B2B',star:true,ready:false},
@@ -30,7 +39,8 @@ const seed=[
 {id:'a5',title:'Micro-SaaS מבוסס SEO',desc:'למצוא בעיה צרה עם חיפוש חוזר וכוונת רכישה גבוהה, לבנות מוצר קטן ולרכוש לקוחות דרך חיפוש. עדיין אין בעיה מוגדרת.',lane:'trends',tag:'Distribution',star:false,ready:false},
 {id:'a6',title:'AI Agents לעסקים קטנים',desc:'לבחון תהליכים עסקיים חוזרים שבהם סוכן AI יכול לחסוך זמן או להקטין טעויות, ולא עוד צ׳אטבוט גנרי.',lane:'trends',tag:'AI Agents',star:false,ready:false},
 {id:'a7',title:'הגנה אזרחית מרחפנים בלי חומרה חדשה',desc:'רעיון מוקדם: פתרונות מידע / ניטור / היערכות ולא אמצעי שיבוש או נשק. לבחון שוק, רגולציה וצורך ממשי.',lane:'wild',tag:'Defense Tech',star:false,ready:false},
-{id:'a8',title:'האם ניטור אוטומציות יכול להיות AI Agent?',desc:'חיבור בין ניטור תקלות לבין Agent שמציע תיקון, מסכם השפעה ואף יוצר משימת טיפול, עם אישור אנושי.',lane:'connections',tag:'AI × SaaS',star:false,ready:false}
+{id:'a8',title:'האם ניטור אוטומציות יכול להיות AI Agent?',desc:'חיבור בין ניטור תקלות לבין Agent שמציע תיקון, מסכם השפעה ואף יוצר משימת טיפול, עם אישור אנושי.',lane:'connections',tag:'AI × SaaS',star:false,ready:false},
+...shortlist
 ].map((x,i)=>({...x,createdAt:new Date(Date.now()-(8-i)*86400000).toISOString()}));
 let cards=load(),editing=null,view='all',query='';
 function validateCards(value){
@@ -44,7 +54,7 @@ function validateCards(value){
     return {id:c.id,title:c.title,desc:c.desc||'',lane:c.lane,tag:c.tag||'',star:!!c.star,ready:!!c.ready,createdAt:c.createdAt||new Date().toISOString()};
   });
 }
-function load(){try{const raw=localStorage.getItem(KEY);if(raw!==null)return validateCards(JSON.parse(raw));}catch(e){setTimeout(()=>toast('לא ניתן לקרוא את השמירה המקומית. אפשר לייבא גיבוי JSON.'),0)}return seed.map(c=>({...c}));}
+function load(){try{const raw=localStorage.getItem(KEY);let migrations=JSON.parse(localStorage.getItem(MIGRATIONS_KEY)||'[]');if(!Array.isArray(migrations))migrations=[];if(raw!==null){let stored=validateCards(JSON.parse(raw));if(!migrations.includes(SHORTLIST_MIGRATION)){const ids=new Set(stored.map(c=>c.id));stored=[...shortlist.filter(c=>!ids.has(c.id)).map(c=>({...c,createdAt:new Date().toISOString()})),...stored];localStorage.setItem(KEY,JSON.stringify(stored));localStorage.setItem(MIGRATIONS_KEY,JSON.stringify([...migrations,SHORTLIST_MIGRATION]));}return stored;}localStorage.setItem(MIGRATIONS_KEY,JSON.stringify([...migrations,SHORTLIST_MIGRATION]));}catch(e){setTimeout(()=>toast('לא ניתן לקרוא את השמירה המקומית. אפשר לייבא גיבוי JSON.'),0)}return seed.map(c=>({...c}));}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(cards));return true;}catch(e){alert('השמירה בדפדפן נכשלה. השינויים זמינים כרגע בלבד — הורד גיבוי JSON לפני סגירת הדף.');return false;}}
  function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));}
 function toast(txt){const t=document.getElementById('toast');t.textContent=txt;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2400)}
